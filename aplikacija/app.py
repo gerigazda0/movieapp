@@ -3,19 +3,24 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import hashlib
 import os
-import numpy as np
 
 # ===========================
 # Naloži podatke
 # ===========================
 @st.cache_data
 def load_data():
-    movies = pd.read_csv("ml-latest-small/movies.csv")
-    ratings = pd.read_csv("ml-latest-small/ratings.csv")
+    dir_path = os.path.dirname(os.path.realpath(__file__))  # lokacija app.py
+    movies_path = os.path.join(dir_path, "ml-latest-small", "movies.csv")
+    ratings_path = os.path.join(dir_path, "ml-latest-small", "ratings.csv")
+
+    movies = pd.read_csv(movies_path)
+    ratings = pd.read_csv(ratings_path)
+
     rating_stats = ratings.groupby("movieId").agg(
         avg_rating=("rating", "mean"),
         rating_count=("rating", "count")
     ).reset_index()
+
     merged = pd.merge(movies, rating_stats, on="movieId")
     merged["year"] = merged["title"].str.extract(r'\((\d{4})\)').astype("Int64")
     merged["clean_title"] = merged["title"].str.replace(r'\(\d{4}\)', '', regex=True).str.strip()
